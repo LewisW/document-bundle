@@ -1,0 +1,7 @@
+parameters:
+#    vivait_document.example.class: Vivait\DocumentBundle\Example
+
+services:
+#    vivait_document.example:
+#        class: %vivait_document.example.class%
+#        arguments: [@service_id, "plain_value", %parameter%]
