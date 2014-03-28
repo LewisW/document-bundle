@@ -6,6 +6,7 @@
 	use Vivait\BootstrapBundle\Controller\Controller;
 	use Vivait\DocumentBundle\Entity\Letter;
 	use JMS\DiExtraBundle\Annotation as DI;
+	use Vivait\DocumentBundle\Entity\LetterRepository;
 	use Vivait\DocumentBundle\Event\LetterEvent;
 
 	class LetterController extends Controller {
