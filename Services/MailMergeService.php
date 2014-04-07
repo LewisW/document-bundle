@@ -6,7 +6,6 @@ use Doctrine\ORM\EntityManager;
 use MBence\OpenTBSBundle\Services\OpenTBS;
 use Vivait\Common\Model\Task\LetterInterface;
 use JMS\DiExtraBundle\Annotation as DI;
-use Vivait\TaskBundle\Entity\TaskMessageAttachment;
 
 /**
  * @DI\Service("vivait.document.mailmerge");
@@ -21,12 +20,15 @@ class MailMergeService {
 
 	/**
 	 * @DI\InjectParams({
-	 *     "tbs" = @DI\Inject("opentbs"),
-	 *     "em" = @DI\Inject("doctrine.orm.entity_manager")
+	 *     "tbs" = @DI\Inject("opentbs")
 	 * })
 	 */
 	function __construct(OpenTBS $tbs) {
 		$this->tbs = $tbs;
+	}
+
+	function addFields($fields) {
+		$this->fields = array_merge($this->fields, $fields);
 	}
 
 	/**
@@ -35,16 +37,48 @@ class MailMergeService {
 	 * @param string $prefix
 	 * @return array
 	 */
-	protected static function flatten($array, $prefix = '') {
+	public static function flatten($array, $prefix = '', $separator = '.') {
 		$result = array();
 		foreach ($array as $key => $value) {
+			$new_prefix = $prefix . $key;
+
 			if (is_array($value)) {
-				$result = $result + self::flatten($value, $prefix . $key . '.');
-			} else {
-				$result[$prefix . $key] = $value;
+				$result += self::flatten($value, $new_prefix . $separator);
+			}
+			else if (is_object($value) && $value instanceOf \DateTime) {
+				$result += self::flatten(self::getDateFormats($value), $new_prefix . $separator);
+			}
+			else {
+				$result[$new_prefix] = $value;
 			}
 		}
 		return $result;
+	}
+
+	/**
+	 * Converts a date into various formats
+	 * @param \DateTime $date
+	 * @return array
+	 */
+	public static function getDateFormats(\DateTime $date, $formats = array()) {
+		$formats = array_merge($formats, array(
+			'c'    => 'c',
+			'full' => 'd/m/Y H:i:s',
+			'date' => 'd/m/Y',
+			'time' => 'H:i:s'
+		));
+
+		$return        = array();
+
+		foreach ($formats as $key => $value) {
+			if ($date) {
+				$return[$key] = $date->format($value);
+			} else {
+				$return[$key] = null;
+			}
+		}
+
+		return $return;
 	}
 
 	public function mergeFile($source, $destination = null) {
@@ -53,10 +87,15 @@ class MailMergeService {
 		}
 
 		$this->tbs->LoadTemplate($source);
+		$this->tbs->SetOption([
+			'chr_open'  => '{{ ',
+			'chr_close' => ' }}',
+			'noerr'     => true
+		]);
 
 		// Flatten and merge the fields
 		foreach ($this->fields as $base => $group) {
-			$this->tbs->MergeField($base, self::flatten($group));
+			$this->tbs->MergeField($base, $group);
 		}
 
 		$this->tbs->Show(OPENTBS_FILE, $destination);

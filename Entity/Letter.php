@@ -5,6 +5,7 @@ namespace Vivait\DocumentBundle\Entity;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
+use Vivait\Common\Model\Task;
 
 /**
  * Letter
@@ -12,7 +13,7 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
  * @ORM\Entity(repositoryClass="LetterRepository")
  * @ORM\HasLifecycleCallbacks
  */
-class Letter {
+class Letter implements Task\LetterInterface {
 	/**
 	 * @var integer
 	 * @ORM\Column(name="id", type="integer")
@@ -48,13 +49,13 @@ class Letter {
 	 */
 	private $filename;
 
-	/**
-	 * @Assert\File(
-	 *     maxSize = "2M",
-	 *     mimeTypes = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.oasis.opendocument.text"},
-	 *     mimeTypesMessage = "Only 'Microsoft Word 2007-onward (docx)' and 'OpenDocument Text (odt)' documents are supported"
-	 * )
-	 */
+//	/**
+//	 * @Assert\File(
+//	 *     maxSize = "2M",
+//	 *     mimeTypes = {"application/vnd.openxmlformats-officedocument.wordprocessingml.document", "application/vnd.oasis.opendocument.text"},
+//	 *     mimeTypesMessage = "Only 'Microsoft Word 2007-onward (docx)' and 'OpenDocument Text (odt)' documents are supported"
+//	 * )
+//	 */
 	private $file;
 
 	private $temp;

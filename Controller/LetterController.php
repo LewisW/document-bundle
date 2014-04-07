@@ -2,6 +2,7 @@
 
 	namespace Vivait\DocumentBundle\Controller;
 
+	use Doctrine\ORM\EntityManager;
 	use Symfony\Component\HttpFoundation\Request;
 	use Vivait\BootstrapBundle\Controller\Controller;
 	use Vivait\DocumentBundle\Entity\Letter;
@@ -21,12 +22,12 @@
 		 *     "em" = @DI\Inject("doctrine.orm.entity_manager"),
 		 * })
 		 */
-		function __construct($em) {
+		function __construct(EntityManager $em) {
 			$this->repository = $em->getRepository('VivaitDocumentBundle:Letter');
 		}
 
 		public function indexAction() {
-			return $this->render('VivaApolloBundle:Maintenance:letters.html.twig', array(
+			return $this->render('VivaitDocumentBundle:Maintenance:letters.html.twig', array(
 				'db' => $this->repository->findAll()
 			));
 		}

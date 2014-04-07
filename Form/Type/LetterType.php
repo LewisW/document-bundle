@@ -18,7 +18,7 @@ class LetterType extends AbstractType {
 		$builder->add('name', 'text', array('required' => true));
 		$builder->add('category', 'text', array('required' => false));
 		$builder->add('filename', 'text', array('label'=>'Final Filename', 'required' => true));
-		$builder->add('file', null, array('label'=>'Upload New File','error_bubbling'=>true));
+		$builder->add('file', 'file', array('label'=>'Upload New File','error_bubbling'=>true));
 
 		$builder->addEventListener(FormEvents::PRE_SET_DATA, array($this, 'addDeleteButton'));
 	}
