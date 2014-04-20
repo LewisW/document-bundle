@@ -35,6 +35,7 @@ class MailMergeService {
 	 * Flattens a nested array into a one-dimensional array while concat keys
 	 * @param        $array
 	 * @param string $prefix
+	 * @param string $separator
 	 * @return array
 	 */
 	public static function flatten($array, $prefix = '', $separator = '.') {
