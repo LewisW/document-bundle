@@ -17,8 +17,8 @@
 		"jms/di-extra-bundle": "dev-master"
 	},
 	"autoload": {
-		"psr-0": {
-			"Vivait\\DocumentBundle": ""
+		"psr-4": {
+			"Vivait\\DocumentBundle": "src/"
 		}
 	},
 	"target-dir": "Vivait/DocumentBundle"
