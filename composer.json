@@ -18,8 +18,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Vivait\\DocumentBundle": "src/"
+			"Vivait\\DocumentBundle": ""
 		}
-	},
-	"target-dir": "Vivait/DocumentBundle"
+	}
 }
