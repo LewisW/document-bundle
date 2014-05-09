@@ -19,7 +19,7 @@
         "jms/serializer": "*"
 	},
 	"autoload": {
-		"psr-4": {
+		"psr-0": {
 			"Vivait\\DocumentBundle\\": "src/"
 		}
 	}

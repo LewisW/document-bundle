@@ -1,0 +1,12 @@
+vivait_document_maintenance_letters_list:
+    pattern:  /maintenance/letters
+    defaults: { _controller: VivaitDocumentBundle:Letter:index }
+
+vivait_document_maintenance_letters_edit:
+    pattern:  /maintenance/letters/edit/{id}
+    defaults: { _controller: VivaitDocumentBundle:Letter:edit }
+
+vivait_document_maintenance_letters_new:
+    pattern:  /maintenance/letters/new
+    defaults: { _controller: VivaitDocumentBundle:Letter:new }
+
