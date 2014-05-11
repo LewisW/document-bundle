@@ -44,9 +44,9 @@ class MailMergeService
             $new_prefix = $prefix . $key;
 
             if (is_array($value)) {
-                $result += self::flatten($value, $new_prefix . $separator);
+                $result += self::flatten($value, $new_prefix . $separator, $separator);
             } else if (is_object($value) && $value instanceOf \DateTime) {
-                $result += self::flatten(self::getDateFormats($value), $new_prefix . $separator);
+                $result += self::flatten(self::getDateFormats($value), $new_prefix . $separator, $separator);
             } else {
                 $result[$new_prefix] = $value;
             }
@@ -86,7 +86,34 @@ class MailMergeService
     }
 
     public function cleanXML($contents) {
-        return preg_replace_callback('#\{(?:\{|%)(.*?)(?:\}|%)\}#i', function($match) {
+//        $dom = new \SimpleXMLElement($contents);
+//        $buffer = '';
+//        $start = null;
+//
+//        // Loop through all the text
+//        foreach ($dom->xpath('//w:t') as $text) {
+//            $start = strpos($text, '{');
+//
+//            // It has an opening tag
+//            if ($start !== false) {
+//                // Check if the next character is a twig character
+//                if (!isset($text[$start + 1])) {
+//                    continue;
+//                }
+//                elseif ($text[$start + 1] == '%') {
+//
+//                }
+//            }
+//            var_dump((string)$text);
+//        }
+//
+//        exit;
+
+        return preg_replace_callback('#«([a-zA-Z0-9_]+)»#', function ($match) {
+              return sprintf('{{ %s|default() }}', str_replace('_', '.', $match[1]));
+          }, $contents);
+
+        $contents = preg_match('#\{(?:\{|%)(.*?)(?:\}|%)\}#i', function($match) {
               $match = $match[0];
               $stripped = strip_tags($match);
 
@@ -96,6 +123,11 @@ class MailMergeService
 
               return $match;
           }, $contents);
+
+        // Replace the mail merge tags
+        $contents = preg_replace('#«([a-z0-9\.]+)»#i', '{{ $1 }}', $contents);
+
+        return $contents;
     }
 
     public function mergeFile($source, $destination = null)
