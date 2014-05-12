@@ -2,18 +2,19 @@
 
 namespace Vivait\DocumentBundle\Command;
 
+use JMS\Serializer\Naming\CamelCaseNamingStrategy;
+use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
+use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\SerializationContext;
 use JMS\Serializer\SerializerBuilder;
+use Vivait\DocumentBundle\Library\SimpleSerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Viva\AuthBundle\Entity\Tenant;
-use Viva\BravoBundle\Entity\Queue;
-use Viva\BravoBundle\Entity\QueueDeal;
-use Viva\BravoBundle\Entity\QueueLead;
 use Vivait\DocumentBundle\Services\MailMergeService;
+use Vivait\DocumentBundle\Library\SimpleSerializationVisitor;
 
 class BuildMailMergeFieldsCommand extends ContainerAwareCommand
 {
@@ -28,14 +29,14 @@ class BuildMailMergeFieldsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
+        $repo = $em->getRepository('VivaBravoBundle:Deal');
 
-        $customer = $em->getRepository('VivaBravoBundle:Deal')->find(12720);
+        $customer = $repo->find(12720);
 
-        $serializer = SerializerBuilder::create()->build();
-        $jsonContent = $serializer->serialize($customer, 'json', SerializationContext::create()->setSerializeNull(true)->setGroups(array('basic', 'deal')));
-        $deal = json_decode($jsonContent, JSON_OBJECT_AS_ARRAY);
+        $serializer = SimpleSerializerBuilder::build();
+        $deal = $serializer->serialize($customer, 'json', SerializationContext::create()->setSerializeNull(true)->setGroups(array('basic', 'deal')));
 
-        echo(implode(',', array_keys(MailMergeService::flatten(['deal' => $deal], '', ' '))));
+        echo(implode(', ', array_keys(MailMergeService::flatten(['deal' => $deal], '', ' '))) ."\n");
 
         /*
          * if ($v === null) {
