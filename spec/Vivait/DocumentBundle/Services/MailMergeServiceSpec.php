@@ -26,4 +26,23 @@ class MailMergeServiceSpec extends ObjectBehavior
     {
         $this->mergeFile($this->sample1);
     }
+
+    function it_can_extract_root_elements() {
+        $node1 = [
+          'id' => 1,
+          'name' => 'test',
+        ];
+        $root1 = [
+          'id' => 2,
+          'name' => 'test2'
+        ];
+
+        $this->extractRoots([
+              'node' => $node1 + ['root1' => $root1]
+          ], ['root1', 'root2'])
+        ->shouldReturn([
+              'node' => $node1,
+              'root1' => $root1
+          ]);
+    }
 }

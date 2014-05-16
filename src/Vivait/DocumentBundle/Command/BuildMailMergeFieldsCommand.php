@@ -2,19 +2,12 @@
 
 namespace Vivait\DocumentBundle\Command;
 
-use JMS\Serializer\Naming\CamelCaseNamingStrategy;
-use JMS\Serializer\Naming\IdenticalPropertyNamingStrategy;
-use JMS\Serializer\Naming\SerializedNameAnnotationStrategy;
 use JMS\Serializer\SerializationContext;
-use JMS\Serializer\SerializerBuilder;
 use Vivait\DocumentBundle\Library\SimpleSerializerBuilder;
 use Symfony\Bundle\FrameworkBundle\Command\ContainerAwareCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Vivait\DocumentBundle\Services\MailMergeService;
-use Vivait\DocumentBundle\Library\SimpleSerializationVisitor;
 
 class BuildMailMergeFieldsCommand extends ContainerAwareCommand
 {
@@ -29,14 +22,46 @@ class BuildMailMergeFieldsCommand extends ContainerAwareCommand
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $em = $this->getContainer()->get('doctrine')->getManager();
-        $repo = $em->getRepository('VivaBravoBundle:Deal');
+        $repo = $em->getRepository('VivaBravoBundle:Finance');
+        $mailmerge = $this->getContainer()->get('vivait.document.mailmerge');
 
-        $customer = $repo->find(12720);
+        $finance  = $repo->find(8986);
+        $customer = $finance->getCustomer();
+        $deal     = $finance->getDeal();
 
-        $serializer = SimpleSerializerBuilder::build();
-        $deal = $serializer->serialize($customer, 'json', SerializationContext::create()->setSerializeNull(true)->setGroups(array('basic', 'deal')));
+        $serializer = SimpleSerializerBuilder::build(true);
+        $finance       = $serializer->serialize(
+          $finance,
+          'json',
+          SerializationContext::create()->setSerializeNull(true)->setGroups(array('basic', 'finance'))
+        );
+        $deal       = $serializer->serialize(
+          $deal,
+          'json',
+          SerializationContext::create()->setSerializeNull(true)->setGroups(array('basic', 'finance'))
+        );
+        $customer       = $serializer->serialize(
+          $customer,
+          'json',
+          SerializationContext::create()->setSerializeNull(true)->setGroups(array('basic', 'finance'))
+        );
+        $data = [
+          'deal' => $deal,
+          'customer' => $customer,
+          'finance' => $finance,
+        ];
+//        $data       = $mailmerge->extractRoots(
+//          [
+//            'deal' => $deal,
+//            'customer' => $customer,
+//            'finance' => $finance,
+//          ],
+//          ['customer', 'finance']
+//        );
 
-        echo(implode(', ', array_keys(MailMergeService::flatten(['deal' => $deal], '', ' '))) ."\n");
+        $data = MailMergeService::flatten($data, '', '_');
+
+        echo(implode(',', array_keys($data)) ."\n");
 
         /*
          * if ($v === null) {

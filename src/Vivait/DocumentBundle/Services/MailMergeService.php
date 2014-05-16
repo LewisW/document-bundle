@@ -2,16 +2,15 @@
 
 namespace Vivait\DocumentBundle\Services;
 
-use Doctrine\ORM\EntityManager;
 use DocxTemplate\Document;
-use DocxTemplate\TemplateFactory;
 use MBence\OpenTBSBundle\Services\OpenTBS;
+use Vivait\DocumentBundle\Drivers\ConversionDriverInterface;
 use Twig_Environment;
 use Twig_Loader_Array;
-use Twig_Loader_Filesystem;
 use Twig_Loader_String;
-use Vivait\Common\Model\Task\LetterInterface;
 use JMS\DiExtraBundle\Annotation as DI;
+use Vivait\DocumentBundle\Drivers\NullConversionDriver;
+use Vivait\DocumentBundle\Drivers\PDFConversionDriver;
 
 /**
  * @DI\Service("vivait.document.mailmerge");
@@ -19,11 +18,41 @@ use JMS\DiExtraBundle\Annotation as DI;
 class MailMergeService
 {
     /**
+     * @var ConversionDriverInterface[]
+     */
+    private $drivers;
+
+    /**
+     * @return array
+     * @todo This obviously needs to be more dynamic
+     */
+    public function getDriversFormats() {
+        $formats = [];
+        foreach ($this->getDrivers() as $driver) {
+            $formats += $driver->getFormats();
+        }
+
+        return $formats;
+    }
+
+    /**
      * @var OpenTBS
      */
     protected $tbs;
 
     protected $fields = array();
+
+    /**
+     * @todo: Move this to a generic tagging service
+     * @param $pdfdriver
+     *
+     * @DI\InjectParams({
+     *  "pdfdriver" = @DI\Inject("vivait.document.mailmerge.pdf")
+     * })
+     */
+    function addDefaultDrivers(PDFConversionDriver $pdfdriver) {
+        $this->addDriver($pdfdriver, 'pdf');
+    }
 
     function addFields($fields)
     {
@@ -52,6 +81,75 @@ class MailMergeService
             }
         }
         return $result;
+    }
+//
+//    protected function extractRootsWalker($data, $roots, &$top) {
+//        foreach ($data as $key => $value) {
+//            if (is_array($value)) {
+//                $value = $this->extractRootsWalker($value, $roots, $top);
+//            }
+//
+//            if (in_array($key, $roots, true)) {
+//                var_dump($key);
+//                $top[$key] = $value;
+//                unset($data[$key]);
+//            }
+//        }
+//
+//        return $data;
+//    }
+
+    public function extractRoots($data, $roots, $parent_key = null) {
+        $return = [];
+        foreach ($data as $key => $value) {
+            if (is_array($value)) {
+                $return += $this->extractRoots($value, $roots, $key);
+            }
+
+            if (!$parent_key || in_array($key, $roots, true)) {
+                $return[$key] = $value;
+            }
+            else {
+                $return[$parent_key][$key] = $value;
+            }
+        }
+
+        var_dump($return);
+
+        return $return;
+
+
+//        $top = $data;
+//
+//        $this->extractRootsWalker($data, $roots, $top);
+//var_dump(array_keys($top));
+//        return $top;
+
+        if ($data === null) {
+            return [];
+        }
+
+        if ($top === null) {
+            $data = $top;
+        }
+
+        // Loop through each element
+        foreach ($data as $key => $value) {
+            // Call it recursively
+            if (is_array($value) && $key == 'deal') {
+                $data[$key] = $this->extractRoots($value, $roots, $top);
+            }
+            else {
+                $data[$key] = $value;
+            }
+
+            // Is it an array
+            if (in_array($key, $roots, true)) {
+                $top[$key] = $this->extractRoots($value, $roots, $top);
+            }
+        }
+
+        return $return;
     }
 
     /**
@@ -132,8 +230,18 @@ class MailMergeService
 
     public function mergeFile($source, $destination = null)
     {
+        $driver = new NullConversionDriver();
+
         if ($destination === null) {
             $destination = $source;
+        }
+        else {
+            $source_extension = pathinfo($source, PATHINFO_EXTENSION);
+            $destination_extension = pathinfo($destination, PATHINFO_EXTENSION);
+
+            if ($source_extension != $destination_extension) {
+                $driver = $this->getConversionDriver($source_extension, $destination_extension);
+            }
         }
 
         // TODO: This should be driver based
@@ -150,6 +258,8 @@ class MailMergeService
         $document->setContent($render)
         ->save($destination);
 
+        $driver->convert($source, $destination);
+
         return $destination;
     }
 
@@ -159,5 +269,51 @@ class MailMergeService
         $twig   = new Twig_Environment($loader);
 
         return $twig->render($content, $this->fields);
+    }
+
+    /**
+     * @param $driver
+     * @param null $alias
+     * @return $this
+     */
+    public function addDriver($driver, $alias = null) {
+        if (is_array($driver) || $driver instanceOf \Traversable) {
+            foreach ($driver as $key => $value) {
+                $this->addDriver($value, $key);
+            }
+        }
+        else if ($driver instanceOf ConversionDriverInterface && $alias) {
+            $this->drivers[$alias] = $driver;
+        }
+
+        return $this;
+    }
+
+    /**
+     * Gets drivers
+     * @return ConversionDriverInterface[]
+     */
+    public function getDrivers()
+    {
+        return $this->drivers;
+    }
+
+    /**
+     * @param $name
+     */
+    public function getDriver($name) {
+        if (isset($this->drivers[$name])) {
+            return $this->drivers[$name];
+        }
+
+        throw new \OutOfBoundsException(sprintf('Invalid driver %s', $name));
+    }
+
+    private function getConversionDriver($source_extension, $destination_extension) {
+        foreach ($this->getDrivers() as $driver) {
+            if ($driver->canConvert($source_extension, $destination_extension)) {
+                return $driver;
+            }
+        }
     }
 } 

@@ -11,14 +11,14 @@ use Vivait\DocumentBundle\Library\SimpleSerializationVisitor;
 class SimpleSerializerBuilder
 {
 
-    public static function build()
+    public static function build($resolveNullClasses = false)
     {
         return SerializerBuilder::create()
           ->addDefaultHandlers()
           ->setPropertyNamingStrategy($namingStrategy = new SerializedNameAnnotationStrategy(new IdenticalPropertyNamingStrategy()))
           ->addDefaultSerializationVisitors()
           ->addDefaultListeners()
-          ->setSerializationVisitor('json', new SimpleSerializationVisitor($namingStrategy))
+          ->setSerializationVisitor('json', (new SimpleSerializationVisitor($namingStrategy))->setResolveNullClasses($resolveNullClasses))
           ->addDefaultDeSerializationVisitors()
           ->build();
     }

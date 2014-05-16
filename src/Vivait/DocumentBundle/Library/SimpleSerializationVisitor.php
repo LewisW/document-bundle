@@ -3,6 +3,7 @@
 namespace Vivait\DocumentBundle\Library;
 
 use Doctrine\Common\Annotations\AnnotationReader;
+use Doctrine\Common\Collections\ArrayCollection;
 use JMS\Serializer\Context;
 use JMS\Serializer\GenericSerializationVisitor;
 use JMS\Serializer\Metadata\PropertyMetadata;
