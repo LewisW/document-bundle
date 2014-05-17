@@ -249,8 +249,9 @@ class MailMergeService
         }
 
         $tmpName = pathinfo($destination, PATHINFO_DIRNAME) . '/' . pathinfo($destination, PATHINFO_FILENAME) . '.' . pathinfo($source, PATHINFO_EXTENSION);
-
+        copy($source,$tmpName);
         // TODO: This should be driver based
+
         $document = new Document($source);
 
         $loader = new Twig_Loader_Array([
@@ -262,7 +263,7 @@ class MailMergeService
         $render = $twig->render('base.html', $this->fields);
 
         $document->setContent($render)
-        ->save($tmpName);
+        ->save();
 
         $driver->convert($tmpName, $destination);
 
