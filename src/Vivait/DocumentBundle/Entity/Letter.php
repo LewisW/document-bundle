@@ -84,12 +84,18 @@ class Letter implements Task\LetterInterface {
 	protected function getUploadRootDir() {
 		// the absolute directory path where uploaded
 		// documents should be saved
-		return __DIR__ . '/../../../../web/' . $this->getUploadDir();
+
+        $path = __DIR__ . '/';
+        $count = 0;
+        while(!in_array('web',scandir($path)) || !in_array('app',scandir($path))) {
+            $path .= '../';
+            $count++;
+            if($count > 10) { throw new \Exception('Exceeded directory recursion looking for root directory');}
+        }
+		return $path . 'web/' . $this->getUploadDir();
 	}
 
 	protected function getUploadDir() {
-		// get rid of the __DIR__ so it doesn't screw up
-		// when displaying uploaded doc/image in the view.
 		return 'uploads/letters';
 	}
 
@@ -171,7 +177,7 @@ class Letter implements Task\LetterInterface {
 		if (null !== $this->getFile()) {
 			// do whatever you want to generate a unique name
 			$filename   = sha1(uniqid(mt_rand(), true));
-			$this->path = $filename . '.' . $this->getFile()->guessExtension();
+			$this->path = $filename . '.' . $this->getFile()->getClientOriginalExtension();
 		}
 	}
 
