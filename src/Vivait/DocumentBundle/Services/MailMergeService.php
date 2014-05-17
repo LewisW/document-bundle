@@ -244,7 +244,7 @@ class MailMergeService
             }
         }
 
-        $tmpName = pathinfo($destination, dirname) . '/' . pathinfo($destination, PATHINFO_FILENAME) . '.' . pathinfo($source, PATHINFO_EXTENSION);
+        $tmpName = pathinfo($destination, PATHINFO_DIRNAME) . '/' . pathinfo($destination, PATHINFO_FILENAME) . '.' . pathinfo($source, PATHINFO_EXTENSION);
 
         // TODO: This should be driver based
         $document = new Document($source);
