@@ -28,23 +28,13 @@ class PDFConversionDriver implements ConversionDriverInterface
     }
 
     public function convert($source, $destination = null) {
-        if($destination === null) {
-            throw new \Exception('PDFConversionDriver requires the $destination argument');
-        }
-
         $dest_extension = pathinfo($destination, PATHINFO_EXTENSION);
-        $tmpFile = sys_get_temp_dir() . '/' . pathinfo($source, PATHINFO_FILENAME) . '.' . pathinfo($destination, PATHINFO_EXTENSION);
-
-        $command = sprintf('%s --headless --convert-to %s --outdir %s %s', $this->office_path, $dest_extension, sys_get_temp_dir(), $source);
-
-        //var_dump($command); exit;
+        $command = sprintf('%s --headless --convert-to %s %s', $this->office_path, $dest_extension, $source);
         exec($command, $output, $return);
-        //var_dump($output, $return);
 
-        if(file_exists($tmpFile)) {
+        if($destination && file_exists($destination) && file_exists($source)) {
             unlink($source);
-            rename($tmpFile,$destination);
-        } else {
+        } elseif($destination) {
             throw new \Exception(sprintf('Could not convert %s to %s',$source,$destination));
         }
 

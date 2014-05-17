@@ -244,6 +244,8 @@ class MailMergeService
             }
         }
 
+        $tmpName = pathinfo($destination, dirname) . '/' . pathinfo($destination, PATHINFO_FILENAME) . '.' . pathinfo($source, PATHINFO_EXTENSION);
+
         // TODO: This should be driver based
         $document = new Document($source);
 
@@ -256,9 +258,9 @@ class MailMergeService
         $render = $twig->render('base.html', $this->fields);
 
         $document->setContent($render)
-        ->save($destination);
+        ->save($tmpName);
 
-        $driver->convert($source, $destination);
+        $driver->convert($tmpName, $destination);
 
         return $destination;
     }
