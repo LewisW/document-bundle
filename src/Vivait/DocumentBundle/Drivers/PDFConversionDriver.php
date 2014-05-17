@@ -28,8 +28,15 @@ class PDFConversionDriver implements ConversionDriverInterface
     }
 
     public function convert($source, $destination = null) {
+        $source = realpath($source);
+        if(!$source) {
+            throw new \Exception('Could not find source document to convert');
+        }
+
         $dest_extension = pathinfo($destination, PATHINFO_EXTENSION);
-        $command = sprintf('%s --headless --convert-to %s %s', $this->office_path, $dest_extension, $source);
+        $command = sprintf('export HOME=/tmp
+                            %s --headless --invisible --norestore --convert-to %s --outdir %s %s',
+            $this->office_path, $dest_extension, pathinfo($destination,PATHINFO_DIRNAME), $source);
         exec($command, $output, $return);
 
         if($destination && file_exists($destination) && file_exists($source)) {

@@ -232,6 +232,10 @@ class MailMergeService
     {
         $driver = new NullConversionDriver();
 
+        if(!file_exists($source)) {
+            throw new \Exception('Could not find source file to mail merge');
+        }
+
         if ($destination === null) {
             $destination = $source;
         }
