@@ -15,7 +15,7 @@
 	"minimum-stability": "stable",
 	"require": {
 		"jms/di-extra-bundle": "dev-master",
-        "tyz910/docx-templates": "dev-master@dev",
+        "tyz910/docx-templates": "*",
         "jms/serializer": "*"
 	},
 	"autoload": {
