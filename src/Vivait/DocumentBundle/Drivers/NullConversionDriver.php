@@ -4,21 +4,17 @@ namespace Vivait\DocumentBundle\Drivers;
 
 class NullConversionDriver implements ConversionDriverInterface
 {
-    public function transform($source, $destination = null) {
-        return $destination;
-    }
-
     public function canConvert($source_extension, $destination_extension)
     {
-        return false;
+        return ($source_extension == $destination_extension);
     }
 
     public function convert($source, $destination = null)
     {
-        // TODO: Implement convert() method.
+        return $destination;
     }
 
-    public function getFormats()
+    public function getFormats($source_extension = null)
     {
         return [];
     }

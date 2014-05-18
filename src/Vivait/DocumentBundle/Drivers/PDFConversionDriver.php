@@ -56,9 +56,9 @@ class PDFConversionDriver implements ConversionDriverInterface
         return false;
     }
 
-    public function getFormats()
+    public function getFormats($source_extension = null)
     {
-        return $this->dest_formats;
+        return (!$source_extension || isset($this->source_formats[$source_extension])) ? $this->dest_formats : [];
     }
 
     /**
