@@ -9,6 +9,7 @@ use Twig_Environment;
 use Twig_Loader_Array;
 use Twig_Loader_String;
 use JMS\DiExtraBundle\Annotation as DI;
+use Vivait\DocumentBundle\Drivers\DocxConversionDriver;
 use Vivait\DocumentBundle\Drivers\NullConversionDriver;
 use Vivait\DocumentBundle\Drivers\PDFConversionDriver;
 
@@ -24,12 +25,11 @@ class MailMergeService
 
     /**
      * @return array
-     * @todo This obviously needs to be more dynamic
      */
-    public function getDriversFormats() {
+    public function getDriverFormats($extension = null) {
         $formats = [];
         foreach ($this->getDrivers() as $driver) {
-            $formats += $driver->getFormats();
+            $formats += $driver->getFormats($extension);
         }
 
         return $formats;
@@ -44,14 +44,19 @@ class MailMergeService
 
     /**
      * @todo: Move this to a generic tagging service
-     * @param $pdfdriver
+     * @param \Vivait\DocumentBundle\Drivers\PDFConversionDriver $PDFConversionDriver
+     * @param \Vivait\DocumentBundle\Drivers\DocxConversionDriver $docxConversionDriver
+     * @internal param $pdfdriver
      *
      * @DI\InjectParams({
-     *  "pdfdriver" = @DI\Inject("vivait.document.mailmerge.pdf")
+     *  "PDFConversionDriver" = @DI\Inject("vivait.document.mailmerge.pdf"),
+     *  "docxConversionDriver" = @DI\Inject("vivait.document.mailmerge.docx")
      * })
      */
-    function addDefaultDrivers(PDFConversionDriver $pdfdriver) {
-        $this->addDriver($pdfdriver, 'pdf');
+    function addDefaultDrivers(PDFConversionDriver $PDFConversionDriver, DocxConversionDriver $docxConversionDriver) {
+        $this->addDriver($PDFConversionDriver, 'pdf');
+        $this->addDriver($docxConversionDriver, 'docx');
+        $this->addDriver(new NullConversionDriver(), 'null');
     }
 
     function addFields($fields)

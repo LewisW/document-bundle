@@ -20,5 +20,5 @@ interface ConversionDriverInterface {
      */
     public function convert($source, $destination = null);
 
-    public function getFormats();
+    public function getFormats($source_extension = null);
 }
