@@ -12,6 +12,7 @@ use JMS\DiExtraBundle\Annotation as DI;
 use Vivait\DocumentBundle\Drivers\DocxConversionDriver;
 use Vivait\DocumentBundle\Drivers\NullConversionDriver;
 use Vivait\DocumentBundle\Drivers\PDFConversionDriver;
+use Vivait\DocumentBundle\Exception\InvalidDocumentException;
 
 /**
  * @DI\Service("vivait.document.mailmerge");
@@ -86,75 +87,6 @@ class MailMergeService
             }
         }
         return $result;
-    }
-//
-//    protected function extractRootsWalker($data, $roots, &$top) {
-//        foreach ($data as $key => $value) {
-//            if (is_array($value)) {
-//                $value = $this->extractRootsWalker($value, $roots, $top);
-//            }
-//
-//            if (in_array($key, $roots, true)) {
-//                var_dump($key);
-//                $top[$key] = $value;
-//                unset($data[$key]);
-//            }
-//        }
-//
-//        return $data;
-//    }
-
-    public function extractRoots($data, $roots, $parent_key = null) {
-        $return = [];
-        foreach ($data as $key => $value) {
-            if (is_array($value)) {
-                $return += $this->extractRoots($value, $roots, $key);
-            }
-
-            if (!$parent_key || in_array($key, $roots, true)) {
-                $return[$key] = $value;
-            }
-            else {
-                $return[$parent_key][$key] = $value;
-            }
-        }
-
-        var_dump($return);
-
-        return $return;
-
-
-//        $top = $data;
-//
-//        $this->extractRootsWalker($data, $roots, $top);
-//var_dump(array_keys($top));
-//        return $top;
-
-        if ($data === null) {
-            return [];
-        }
-
-        if ($top === null) {
-            $data = $top;
-        }
-
-        // Loop through each element
-        foreach ($data as $key => $value) {
-            // Call it recursively
-            if (is_array($value) && $key == 'deal') {
-                $data[$key] = $this->extractRoots($value, $roots, $top);
-            }
-            else {
-                $data[$key] = $value;
-            }
-
-            // Is it an array
-            if (in_array($key, $roots, true)) {
-                $top[$key] = $this->extractRoots($value, $roots, $top);
-            }
-        }
-
-        return $return;
     }
 
     /**
@@ -235,10 +167,11 @@ class MailMergeService
 
     public function mergeFile($source, $destination = null)
     {
-        $driver = new NullConversionDriver();
+        $driver      = new NullConversionDriver();
+        $source      = realpath($source);
 
         if(!file_exists($source)) {
-            throw new \Exception('Could not find source file to mail merge');
+            throw new InvalidDocumentException('Could not find source file to mail merge');
         }
 
         if ($destination === null) {
@@ -253,8 +186,6 @@ class MailMergeService
             }
         }
 
-        $tmpName = pathinfo($destination, PATHINFO_DIRNAME) . '/' . pathinfo($destination, PATHINFO_FILENAME) . '.' . pathinfo($source, PATHINFO_EXTENSION);
-        copy($source,$tmpName);
         // TODO: This should be driver based
 
         $document = new Document($source);
@@ -270,7 +201,7 @@ class MailMergeService
         $document->setContent($render)
         ->save();
 
-        $driver->convert($tmpName, $destination);
+        $driver->convert($destination);
 
         return $destination;
     }
@@ -327,5 +258,7 @@ class MailMergeService
                 return $driver;
             }
         }
+
+        throw new InvalidDocumentException(sprintf('Could not find converter from %s to %s', $source_extension, $destination_extension));
     }
 } 

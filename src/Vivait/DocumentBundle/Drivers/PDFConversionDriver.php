@@ -3,6 +3,7 @@
 namespace Vivait\DocumentBundle\Drivers;
 
 use JMS\DiExtraBundle\Annotation as DI;
+use Vivait\DocumentBundle\Exception\InvalidDocumentException;
 
 /**
  * @DI\Service("vivait.document.mailmerge.pdf");
@@ -28,23 +29,24 @@ class PDFConversionDriver implements ConversionDriverInterface
     }
 
     public function convert($source, $destination = null) {
-        $source = realpath($source);
-        if(!$source) {
-            throw new \Exception('Could not find source document to convert');
-        }
-
         $dest_extension = pathinfo($destination, PATHINFO_EXTENSION);
+
+        $dest_directory = pathinfo($destination, PATHINFO_DIRNAME);
         $command = sprintf('export HOME=/tmp
                             %s --headless --invisible --norestore --convert-to %s --outdir %s %s',
-            $this->office_path, $dest_extension, pathinfo($destination,PATHINFO_DIRNAME), $source);
-        exec($command, $output, $return);
+          escapeshellcmd($this->office_path), escapeshellarg($dest_extension),
+          escapeshellarg($dest_directory), escapeshellarg($source));
 
-        if($destination && file_exists($destination) && file_exists($source)) {
-            unlink($source);
-        } elseif($destination) {
-            throw new \Exception(sprintf('Could not convert %s to %s',$source,$destination));
+        exec($command);
+
+        if (!file_exists($destination)) {
+            throw new InvalidDocumentException(sprintf('Could not convert %s to %s', $source, $destination));
+        }
+        else {
+            //unlink($source);
         }
 
+        return $destination;
     }
 
     public function canConvert($source_extension, $destination_extension)
