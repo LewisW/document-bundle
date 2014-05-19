@@ -167,8 +167,8 @@ class MailMergeService
 
     public function mergeFile($source, $destination = null)
     {
-        $driver      = new NullConversionDriver();
-        $source      = realpath($source);
+        $driver           = new NullConversionDriver();
+        $source           = realpath($source);
 
         if(!file_exists($source)) {
             throw new InvalidDocumentException('Could not find source file to mail merge');
@@ -199,7 +199,7 @@ class MailMergeService
         $render = $twig->render('base.html', $this->fields);
 
         $document->setContent($render)
-        ->save();
+        ->save($destination);
 
         $driver->convert($destination);
 

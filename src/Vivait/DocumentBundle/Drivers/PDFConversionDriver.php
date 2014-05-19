@@ -29,21 +29,22 @@ class PDFConversionDriver implements ConversionDriverInterface
     }
 
     public function convert($source, $destination = null) {
+        if (!$destination) {
+            $destination = $source;
+        }
+
         $dest_extension = pathinfo($destination, PATHINFO_EXTENSION);
 
-        $dest_directory = pathinfo($destination, PATHINFO_DIRNAME);
-        $command = sprintf('export HOME=/tmp
-                            %s --headless --invisible --norestore --convert-to %s --outdir %s %s',
+        $dest_directory = realpath(pathinfo($destination, PATHINFO_DIRNAME));
+        $command = sprintf('export HOME=/tmp &&
+                            %s --headless --invisible --norestore --nofirststartwizard --convert-to %s --outdir %s %s 2>&1',
           escapeshellcmd($this->office_path), escapeshellarg($dest_extension),
           escapeshellarg($dest_directory), escapeshellarg($source));
 
-        exec($command);
+        exec($command, $output, $return);
 
         if (!file_exists($destination)) {
             throw new InvalidDocumentException(sprintf('Could not convert %s to %s', $source, $destination));
-        }
-        else {
-            //unlink($source);
         }
 
         return $destination;
