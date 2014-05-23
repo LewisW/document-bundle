@@ -26,6 +26,16 @@ class SimpleSerializationVisitor extends GenericSerializationVisitor
         return $this->resolveNullClasses;
     }
 
+    public function visitDouble($data, array $type, Context $context)
+    {
+        if (is_numeric($data)) {
+            return number_format($data, 2);
+        }
+
+        return parent::visitDouble($data, $type, $context);
+    }
+
+
     /**
      * Sets resolveNullClasses
      * @param boolean $resolveNullClasses
