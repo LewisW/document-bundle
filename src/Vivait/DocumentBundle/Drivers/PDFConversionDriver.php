@@ -36,8 +36,7 @@ class PDFConversionDriver implements ConversionDriverInterface
         $dest_extension = pathinfo($destination, PATHINFO_EXTENSION);
 
         $dest_directory = realpath(pathinfo($destination, PATHINFO_DIRNAME));
-        $command = sprintf('export HOME=/tmp &&
-                            %s --headless --invisible --norestore --nofirststartwizard --convert-to %s --outdir %s %s 2>&1',
+        $command = sprintf('%s --headless --invisible --norestore --nofirststartwizard --convert-to %s --outdir %s %s 2>&1',
           escapeshellcmd($this->office_path), escapeshellarg($dest_extension),
           escapeshellarg($dest_directory), escapeshellarg($source));
 
