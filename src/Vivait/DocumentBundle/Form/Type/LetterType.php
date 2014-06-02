@@ -17,6 +17,7 @@ class LetterType extends AbstractType {
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		$builder->add('name', 'text', array('required' => true));
 		$builder->add('category', 'text', array('required' => false));
+		$builder->add('enabled', 'checkbox', array('required' => false));
 		$builder->add('filename', 'text', array('label'=>'Final Filename', 'required' => true));
 		$builder->add('file', 'file', array('label'=>'Upload New File','error_bubbling'=>true));
 

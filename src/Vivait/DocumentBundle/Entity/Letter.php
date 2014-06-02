@@ -49,6 +49,12 @@ class Letter implements Task\LetterInterface {
 	 */
 	private $filename;
 
+    /**
+     * @var boolean
+     * @ORM\Column(name="enabled", type="boolean", nullable=true)
+     */
+    private $enabled;
+
 //	/**
 //	 * @Assert\File(
 //	 *     maxSize = "2M",
@@ -249,6 +255,23 @@ class Letter implements Task\LetterInterface {
 	public function getFilename() {
 		return $this->filename;
 	}
+
+    /**
+     * @return boolean
+     */
+    public function isEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * @param boolean $enabled
+     */
+    public function setEnabled($enabled)
+    {
+        $this->enabled = $enabled;
+    }
+
 
 
 }
