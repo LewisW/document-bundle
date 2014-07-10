@@ -11,17 +11,22 @@ use Vivait\Common\Form\DeletableTrait;
 /**
  * @FormType
  */
-class LetterType extends AbstractType {
+class BundleType extends AbstractType {
 	use DeletableTrait;
 
 	public function buildForm(FormBuilderInterface $builder, array $options) {
 		$builder->add('name', 'text', array('required' => true));
 		$builder->add('category', 'text', array('required' => false));
 		$builder->add('enabled', 'checkbox', array('required' => false));
-		$builder->add('copies', 'integer', array('label'=>'No. Copies', 'required' => true));
-		$builder->add('priority', 'integer', array('label'=>'Priority (Higher First)', 'required' => true));
-		$builder->add('filename', 'text', array('label'=>'Final Filename', 'required' => true));
-		$builder->add('file', 'file', array('label'=>'Upload New File','error_bubbling'=>true));
+        $builder->add('letters',	'entity', array(
+                'class' => 'VivaitDocumentBundle:Letter',
+                'property' => 'name',
+                'multiple' => true,
+                'required' => false,
+                'label' => 'Letters',
+                'attr'     => array('size' => 20),
+                'by_reference' => false											#USE THIS ALONG WITH A $owning->addInverse($this); IN THE addOwning() FUNCTION TO TRIGGER AN UPDATE WHEN ON INVERSE SIDE
+            ));
 
 		$builder->addEventListener(FormEvents::PRE_SET_DATA, array($this, 'addDeleteButton'));
 	}
@@ -32,12 +37,12 @@ class LetterType extends AbstractType {
 	 * @return string The name of this type
 	 */
 	public function getName() {
-		return 'letter';
+		return 'bundle';
 	}
 
 
 
 	public function createTitle($is_new = false) {
-		return $is_new ? 'Add document' : 'Edit document';
+		return $is_new ? 'Add Bundle' : 'Edit Bundle';
 	}
 }

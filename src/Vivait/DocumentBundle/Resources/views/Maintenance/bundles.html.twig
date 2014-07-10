@@ -1,0 +1,34 @@
+{% extends '::base.html.twig' %}
+
+{% block sectionlinks %}
+	<a href="{{ path('vivait_document_maintenance_bundles_new') }}" class="btn ajax-dialog" title="Add Document Bundle"><i class="glyphicon glyphicon-plus-sign"></i> Add Document</a>
+{% endblock %}
+{% block sectiontitle %}
+	Document Bundles
+{% endblock %}
+{% block section %}
+<div class="row">
+    <div class="col-md-12">
+		{% if db | length > 0 %}
+			<table class="table table-condensed table-bordered table-hover">
+				<thead>
+				<tr>
+					<th>Category</th>
+					<th>Name</th>
+					<th>Enabled</th>
+					<th>Letters</th>
+				</tr>
+				</thead>
+				{% for row in db %}
+					<tr>
+						<td>{{ row.category }}</td>
+						<td><a href="{{ path('vivait_document_maintenance_bundles_edit', {'id': row.id }) }}" class="ajax-dialog">{{ row.name }}</a></td>
+						<td>{{ row.enabled|yesnoicon|raw }}</td>
+                        <td>{% for letter in row.letters %}<div class="cell-divider">{{ letter.name }}</div>{% endfor %}</td>
+					</tr>
+				{% endfor %}
+			</table>
+		{% else %}
+			<p>There are no bundles set up</p>
+		{% endif %}  </div></div><!--/row-->
+{% endblock %}

@@ -42,6 +42,18 @@ class Letter implements Task\LetterInterface {
 	 */
 	private $path;
 
+    /**
+     * @var integer
+     * @ORM\Column(type="smallint", nullable=true)
+     */
+    private $copies;
+
+    /**
+     * @var integer
+     * @ORM\Column(type="smallint", nullable=true)
+     */
+    private $priority;
+
 	/**
 	 * @var string
 	 * @Assert\NotBlank()
@@ -54,6 +66,16 @@ class Letter implements Task\LetterInterface {
      * @ORM\Column(name="enabled", type="boolean", nullable=true)
      */
     private $enabled;
+
+    /**
+     * @ORM\ManyToMany(targetEntity="Bundle", mappedBy="letters")
+     **/
+    private $bundles;
+
+    public function __construct() {
+        $this->bundles = new \Doctrine\Common\Collections\ArrayCollection();
+    }
+
 
 //	/**
 //	 * @Assert\File(
@@ -272,6 +294,83 @@ class Letter implements Task\LetterInterface {
         $this->enabled = $enabled;
     }
 
+    /**
+     * @return int
+     */
+    public function getCopies()
+    {
+        return $this->copies;
+    }
+
+    /**
+     * @param int $copies
+     */
+    public function setCopies($copies)
+    {
+        $this->copies = $copies;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPriority()
+    {
+        return $this->priority;
+    }
+
+    /**
+     * @param int $priority
+     */
+    public function setPriority($priority)
+    {
+        $this->priority = $priority;
+    }
 
 
+
+
+
+
+    /**
+     * Get enabled
+     *
+     * @return boolean 
+     */
+    public function getEnabled()
+    {
+        return $this->enabled;
+    }
+
+    /**
+     * Add bundles
+     *
+     * @param \Vivait\DocumentBundle\Entity\Bundle $bundles
+     * @return Letter
+     */
+    public function addBundle(\Vivait\DocumentBundle\Entity\Bundle $bundles)
+    {
+        $this->bundles[] = $bundles;
+
+        return $this;
+    }
+
+    /**
+     * Remove bundles
+     *
+     * @param \Vivait\DocumentBundle\Entity\Bundle $bundles
+     */
+    public function removeBundle(\Vivait\DocumentBundle\Entity\Bundle $bundles)
+    {
+        $this->bundles->removeElement($bundles);
+    }
+
+    /**
+     * Get bundles
+     *
+     * @return \Doctrine\Common\Collections\Collection 
+     */
+    public function getBundles()
+    {
+        return $this->bundles;
+    }
 }
