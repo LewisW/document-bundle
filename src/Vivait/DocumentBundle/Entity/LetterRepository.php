@@ -24,4 +24,14 @@ class LetterRepository extends EntityRepository {
 		$em->remove($letter);
 		$em->flush();
 	}
+
+    public function findAll() {
+        $em = $this->getEntityManager();
+        return $em->createQueryBuilder('l')
+            ->select('l')
+            ->from('VivaitDocumentBundle:Letter','l')
+            ->orderBy('l.priority','DESC')
+            ->getQuery()
+            ->getResult();
+    }
 } 

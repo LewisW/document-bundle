@@ -67,13 +67,18 @@ class Letter implements Task\LetterInterface {
      */
     private $enabled;
 
-    /**
-     * @ORM\ManyToMany(targetEntity="Bundle", mappedBy="letters")
-     **/
-    private $bundles;
+
+    public function getFullName() {
+        if($this->copies > 1) {
+            return sprintf("%s (%s copies)",
+                $this->name,
+                $this->copies);
+
+        }
+        return $this->getName();
+    }
 
     public function __construct() {
-        $this->bundles = new \Doctrine\Common\Collections\ArrayCollection();
     }
 
 
@@ -341,36 +346,4 @@ class Letter implements Task\LetterInterface {
         return $this->enabled;
     }
 
-    /**
-     * Add bundles
-     *
-     * @param \Vivait\DocumentBundle\Entity\Bundle $bundles
-     * @return Letter
-     */
-    public function addBundle(\Vivait\DocumentBundle\Entity\Bundle $bundles)
-    {
-        $this->bundles[] = $bundles;
-
-        return $this;
-    }
-
-    /**
-     * Remove bundles
-     *
-     * @param \Vivait\DocumentBundle\Entity\Bundle $bundles
-     */
-    public function removeBundle(\Vivait\DocumentBundle\Entity\Bundle $bundles)
-    {
-        $this->bundles->removeElement($bundles);
-    }
-
-    /**
-     * Get bundles
-     *
-     * @return \Doctrine\Common\Collections\Collection 
-     */
-    public function getBundles()
-    {
-        return $this->bundles;
-    }
 }

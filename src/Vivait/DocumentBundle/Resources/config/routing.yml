@@ -9,16 +9,3 @@ vivait_document_maintenance_letters_edit:
 vivait_document_maintenance_letters_new:
     pattern:  /maintenance/letters/new
     defaults: { _controller: VivaitDocumentBundle:Letter:new }
-
-vivait_document_maintenance_bundles_list:
-    pattern:  /maintenance/bundles
-    defaults: { _controller: VivaitDocumentBundle:Bundle:index }
-
-vivait_document_maintenance_bundles_edit:
-    pattern:  /maintenance/bundles/edit/{id}
-    defaults: { _controller: VivaitDocumentBundle:Bundle:edit }
-
-vivait_document_maintenance_bundles_new:
-    pattern:  /maintenance/bundles/new
-    defaults: { _controller: VivaitDocumentBundle:Bundle:new }
-

@@ -16,8 +16,8 @@
 					<th>Category</th>
 					<th>Name</th>
 					<th>Enabled</th>
+					<th>Priority</th>
 					<th>Copies</th>
-					<th>Bundles</th>
 					<th>Download</th>
 				</tr>
 				</thead>
@@ -26,8 +26,8 @@
 						<td>{{ row.category }}</td>
 						<td><a href="{{ path('vivait_document_maintenance_letters_edit', {'id': row.id }) }}" class="ajax-dialog">{{ row.name }}</a></td>
 						<td>{{ row.enabled|yesnoicon|raw }}</td>
+						<td>{{ row.priority }}</td>
 						<td>{{ row.copies }}</td>
-                        <td>{% for bundle in row.bundles %}<div class="cell-divider">{{ bundle.name }}</div>{% endfor %}</td>
 						<td><a href="{{ asset(row.webpath) }}">Download</a></td>
 					</tr>
 				{% endfor %}
