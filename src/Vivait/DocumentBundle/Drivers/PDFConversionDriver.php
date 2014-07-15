@@ -13,12 +13,12 @@ class PDFConversionDriver implements ConversionDriverInterface
     private $office_path = '~/soffice';
 
     private $source_formats = [
-      'docx' => 'Word document',
-      'zip'  => 'Zip file'
+        'docx' => 'Word document',
+        'zip'  => 'Zip file'
     ];
 
     private $dest_formats = [
-      'pdf' => 'PDF'
+        'pdf' => 'PDF'
     ];
 
     function __construct($office_path = null)
@@ -28,7 +28,8 @@ class PDFConversionDriver implements ConversionDriverInterface
         }
     }
 
-    public function convert($source, $destination = null) {
+    public function convert($source, $destination = null)
+    {
         if (!$destination) {
             $destination = $source;
         }
@@ -36,14 +37,18 @@ class PDFConversionDriver implements ConversionDriverInterface
         $dest_extension = pathinfo($destination, PATHINFO_EXTENSION);
 
         $dest_directory = realpath(pathinfo($destination, PATHINFO_DIRNAME));
-        $command = sprintf('%s --headless --invisible --norestore --nofirststartwizard --convert-to %s --outdir %s %s 2>&1',
-          escapeshellcmd($this->office_path), escapeshellarg($dest_extension),
-          escapeshellarg($dest_directory), escapeshellarg($source));
+        $command = sprintf(
+            '%s --headless --invisible --norestore --nofirststartwizard --convert-to %s --outdir %s %s 2>&1',
+            escapeshellcmd($this->office_path),
+            escapeshellarg($dest_extension),
+            escapeshellarg($dest_directory),
+            escapeshellarg($source)
+        );
+        $command = 'unset DYLD_LIBRARY_PATH; ' . $command;
 
         exec($command, $output, $return);
-
-        if (!file_exists($destination)) {
-            throw new InvalidDocumentException(sprintf('Could not convert %s to %s', $source, $destination));
+        if (!file_exists($destination) || $return) {
+            throw new InvalidDocumentException(sprintf('Could not convert documents to PDF', $source, $destination));
         }
 
         return $destination;
@@ -52,7 +57,7 @@ class PDFConversionDriver implements ConversionDriverInterface
     public function canConvert($source_extension, $destination_extension)
     {
         if (isset($this->source_formats[$source_extension]) && isset($this->dest_formats[$destination_extension])) {
-           return true;
+            return true;
         }
 
         return false;
